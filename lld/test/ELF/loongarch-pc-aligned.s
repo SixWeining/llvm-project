@@ -285,14 +285,16 @@
 # EXTREME17-NEXT: lu52i.d   $t0, $t0, 0
 
 ## A case that pcalau12i, lu32i.d and lu52i.d are in different pages.
+## page delta = 0x0000000080000000, page offset = 0x123
+## %pc_lo12   = 0x111 = 273
+## %pc_hi20   = 0x80000 = -524288
+## %pc64_lo20 = 0x00001 = 1
+## %pc64_hi12 = 0x000 = 0
 # RUN: ld.lld %t/extreme.o --section-start=.rodata=0x80000111 --section-start=.text=0xff8 -o %t/extreme18
 # RUN: llvm-objdump -d --no-show-raw-insn %t/extreme18 | FileCheck %s --check-prefix=EXTREME18
 # EXTREME18:      addi.d $t0, $zero, 273
 # EXTREME18-NEXT: pcalau12i $t1, -524288
-## FIXME: The relocation result is incorrect because lld uses seperate PCs of
-## each insn but not the PC of pcalau12i to calculate page delta. In this case
-## the correct result should be `lu32i.d $t0, 1`.
-# EXTREME18-NEXT: lu32i.d   $t0, 0
+# EXTREME18-NEXT: lu32i.d   $t0, 1
 # EXTREME18-NEXT: lu52i.d   $t0, $t0, 0
 
 #--- a.s

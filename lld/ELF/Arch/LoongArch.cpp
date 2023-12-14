@@ -83,22 +83,22 @@ static uint32_t lo12(uint32_t val) { return val & 0xfff; }
 
 // Calculate the adjusted page delta between dest and PC.
 uint64_t elf::getLoongArchPageDelta(uint64_t dest, uint64_t pc, RelType type) {
-  // Note that if the sequence being relocated is `pcalau12i + lu32i.d +
-  // lu52i.d`, they must be adjancent so that we can infer the PC of `pcalau12i`
-  // when calculating the page delta for the other two instructions.
-  // Compensate all the sign-extensions is a bit complicated. Just use psABI
-  // recommended algorithm.
+  // Note that if the sequence being relocated is `pcalau12i + addi.d + lu32i.d
+  // + lu52i.d`, they must be adjancent so that we can infer the PC of
+  // `pcalau12i` when calculating the page delta for the other two instructions
+  // (lu32i.d and lu52i.d). Compensate all the sign-extensions is a bit
+  // complicated. Just use psABI recommended algorithm.
   uint64_t pcalau12i_pc;
   switch (type) {
   case R_LARCH_PCALA64_LO20:
   case R_LARCH_GOT64_PC_LO20:
   case R_LARCH_TLS_IE64_PC_LO20:
-    pcalau12i_pc = pc - 4;
+    pcalau12i_pc = pc - 8;
     break;
   case R_LARCH_PCALA64_HI12:
   case R_LARCH_GOT64_PC_HI12:
   case R_LARCH_TLS_IE64_PC_HI12:
-    pcalau12i_pc = pc - 8;
+    pcalau12i_pc = pc - 12;
     break;
   default:
     pcalau12i_pc = pc;
